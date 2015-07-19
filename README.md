@@ -5,11 +5,11 @@ with it, the better. To that end, __WebAdpyser__ is a class/script that can
 currently scrape section information from WebAdvisor instances, and has a
 unix-friendly interface.
 
-By default, it uses [OASIS](oasis.oglethorpe.edu), but other sites that work can
+By default, it uses [OASIS](https//oasis.oglethorpe.edu), but other sites that work can
 be added via [wa.ini](./wa.ini).
 
 A full listing of options can be found with the --help flag, but here are some
-examples:
+(trimmed) examples:
 
 ````
 rwb@debian-p:~/python/WebAdpyser$ ./wa.py
@@ -22,10 +22,6 @@ MAT-111-001 Statistics
 MAT-111-002 Statistics 
 MAT-120-002 Introduction to Functions 
 MAT-120-003 Introduction to Functions 
-MAT-120-004 Introduction to Functions 
-MAT-120-005 Introduction to Functions 
-MAT-120-006 Introduction to Functions 
-MAT-120-101 Introduction to Functions 
 MAT-121-001 Applied Calculus 
 MAT-121-201 Applied Calculus 
 MAT-131-001 Calculus I 
@@ -34,7 +30,7 @@ MAT-233-001 Calculus III
 MAT-241-001 Proof and Logic 
 MAT-471-001 Abstract Algebra 
 
-$ ./wa.py MAT -st -g 200 # Same, but only those higher than MAT-200.
+$ ./wa.py MAT -st -g 200 # Same, but only those >= MAT-200.
 MAT-233-001 Calculus III 
 MAT-241-001 Proof and Logic 
 MAT-471-001 Abstract Algebra 
