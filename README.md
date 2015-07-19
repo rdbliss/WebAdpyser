@@ -1,9 +1,13 @@
 # WebAdpyser
 
-WebAdvisor (the actual web program) is terrible. The less anyone has to interact
-with it, the better. To that end, __WebAdpyser__ is a class/script that can
-currently scrape section information from WebAdvisor instances, and has a
-unix-friendly interface.
+__WebAdvisor__, [according to Ellucian](http://www.ellucian.com/Software/Colleague-WebAdvisor/),
+"presents real-time information such as community news, services, e-commerce
+capabilities, and e-learning offerings—all from one central and secure
+location."
+
+It is terrible. The less anyone has to interact with it, the better. To that
+end, __WebAdpyser is a class/script that can currently scrape section
+information from WebAdvisor__ instances, and has a __unix-like interface__.
 
 By default, it uses [OASIS](https//oasis.oglethorpe.edu), but other sites that work can
 be added via [wa.ini](./wa.ini).
