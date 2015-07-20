@@ -135,6 +135,8 @@ class WebAdvisor:
         return self.last_request
 
     def follow_link(self, text):
+        """Search for and attempt to follow the first
+            link in the last response."""
         soup = BeautifulSoup(self.last_request.content)
         link = find_link(text, soup)
         return self.get(link)
@@ -164,6 +166,8 @@ class WebAdvisor:
         return self.post(url, data=data)
 
     def grab_section_rows(self, r, detailed=False):
+        """Grab the section information from the response of the section POST.
+        If `detailed` is true, grab the course descriptions as well."""
         rets = []
 
         for zipper in grab_section_tags(r):
@@ -198,6 +202,8 @@ class WebAdvisor:
 
 # Validate options?
 def parse_section_string(s):
+    """Split a string SUB-NUM-SEC into a base Section.
+    Does not currently (Mon Jul 20 2015) validate options."""
     return Section(*s.split("-"))
 
 if __name__ == "__main__":
