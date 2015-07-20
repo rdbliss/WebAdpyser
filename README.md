@@ -9,7 +9,7 @@ It is terrible. The less anyone has to interact with it, the better. To that
 end, __WebAdpyser is a class/script that can currently scrape section
 information from WebAdvisor__ instances, and has a __unix-like interface__.
 
-By default, it uses [OASIS](https//oasis.oglethorpe.edu), but other sites that work can
+By default, it uses [OASIS](https://oasis.oglethorpe.edu), but other sites that work can
 be added via [wa.ini](./wa.ini).
 
 A full listing of options can be found with the --help flag, but here are some
