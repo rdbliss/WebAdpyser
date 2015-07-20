@@ -213,8 +213,10 @@ if __name__ == "__main__":
               "It's probably broken, too.") % sys.argv[0]
 
     parser = argparse.ArgumentParser(description=desc, epilog=epilog)
+    group = parser.add_mutually_exclusive_group()
+    group.add_argument("-g", "--greater", help="only report sections >= N", metavar="N", type=int, default=0)
+    group.add_argument("-l", "--less", help="only report sections <= N", metavar="N", type=int, default=float("inf"))
     parser.add_argument("sec", nargs="+", help="string in form of SUB-NUM-SEC, i.e. MAT-241-001")
-    parser.add_argument("-g", "--greater", help="only report sections >= N", metavar="N", type=int, default=0)
     parser.add_argument("-f", "--faculty", help="get section faculty", action="store_true")
     parser.add_argument("-t", "--title", help="get section faculty", action="store_true")
     parser.add_argument("-m", "--meeting", help="get section meetings", action="store_true")
@@ -255,8 +257,10 @@ if __name__ == "__main__":
 
     specific_print = False
     for section in sections:
-        if int(section.number) < args.greater:
+        if ((args.greater and int(section.number) < args.greater) or
+            (args.less    and int(section.number) > args.less)):
             continue
+
         if args.section:
             specific_print = True
             print("%s-%s-%s" % (section.subject, section.number,
