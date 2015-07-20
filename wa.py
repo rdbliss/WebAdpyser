@@ -161,8 +161,7 @@ class WebAdvisor:
 
         # Sometimes this is already set, but make sure.
         url = replace_url_query(self.last_request.url, "APP", "ST")
-        self.last_request = self.post(url, data=data)
-        return self.last_request
+        return self.post(url, data=data)
 
     def grab_section_rows(self, r, detailed=False):
         rets = []
@@ -188,6 +187,14 @@ class WebAdvisor:
             rets.append(s)
 
         return rets
+
+    def login(self, username, password):
+        """POST a login request.
+        Assumes self.last_request is on the login page."""
+        data = { "USER.NAME": username
+               , "CURR.PWD": password
+               , "RETURN.URL": self.last_request.url}
+        return self.post(self.last_request.url, data=data)
 
 # Validate options?
 def parse_section_string(s):
