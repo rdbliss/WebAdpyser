@@ -1,9 +1,10 @@
 # WebAdpyser
 
 __WebAdvisor__, [according to Ellucian](http://www.ellucian.com/Software/Colleague-WebAdvisor/),
-"presents real-time information such as community news, services, e-commerce
-capabilities, and e-learning offerings—all from one central and secure
-location."
+
+> [P]resents real-time information such as community news, services, e-commerce
+> capabilities, and e-learning offerings—all from one central and secure
+> location.
 
 It is terrible. The less anyone has to interact with it, the better. To that
 end, __WebAdpyser is a class/script that can currently scrape section
