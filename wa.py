@@ -21,6 +21,7 @@ import requests
 import argparse
 import sys
 import ast
+import os
 
 def replace_url_query(url, query, value):
     # urlparse returns a tuple that we can't modify.
@@ -229,7 +230,8 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     config = configparser.ConfigParser()
-    config.read("wa.ini")
+    dir = os.path.dirname(os.path.realpath(sys.argv[0]))
+    config.read(os.path.join(dir, "wa.ini"))
 
     if args.url in config:
         section_path = ast.literal_eval(config[args.url]["to_section"])
