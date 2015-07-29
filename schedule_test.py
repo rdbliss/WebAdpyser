@@ -17,8 +17,10 @@ web.follow_link("for Students")
 web.follow_link("My class")
 soup = BeautifulSoup(web.last_request.content)
 
-# Returns to main page?
-# Just a guess: SS query is getting in the way.
-web.post(web.last_request.url, data={ "RETURN.URL": web.last_request.url, "VAR4": "FA15R"})
-soup = BeautifulSoup(web.last_request.content)
-print(soup.text)
+web.get_class_schedule("FA15R")
+
+print("Schedule for %s:" % user)
+for section in web.grab_schedule_rows(web.last_request, True):
+    print(section)
+    if section.detail:
+        print(section.detail)
