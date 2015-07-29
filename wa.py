@@ -162,6 +162,14 @@ class WebAdvisor:
         link = find_link(text, soup)
         return self.get(link)
 
+    def detailed_from_short_title(self, title_tag, r):
+        """Get a detailed paragraph from the short-title tag.
+        Needs to GET a page, so in the WebAdvisor class."""
+        query = parse_title_link(title_tag.attrs["onclick"])
+        url = r.url[:r.url.find("?")] + query
+        url = delete_url_query(url, "CLONE")
+        return get_description_paragraph(self.get(url))
+
     def section_request(self, term="FA15R", *sections):
         """POST a section query. Assumes self.last_request is section page."""
         # TABLE.VARc_r, c column, r row.
@@ -198,10 +206,7 @@ class WebAdvisor:
             text_list = [t.text for t in list(tag_zip[1:])]
 
             if detailed:
-                query = parse_title_link(title_tag.attrs["onclick"])
-                url = r.url[:r.url.find("?")] + query
-                url = delete_url_query(url, "CLONE")
-                s.detail = get_description_paragraph(self.get(url))
+                s.detail = self.detailed_from_short_title(title_tag, r)
 
             s.status, s.meeting, s.faculty, s.capacity, s.credits = text_list
             rets.append(s)
@@ -220,10 +225,7 @@ class WebAdvisor:
             text_list = [t.text for t in list(tag_zip[1:])]
 
             if detailed:
-                query = parse_title_link(title_tag.attrs["onclick"])
-                url = r.url[:r.url.find("?")] + query
-                url = delete_url_query(url, "CLONE")
-                s.detail = get_description_paragraph(self.get(url))
+                s.detail = self.detailed_from_short_title(title_tag, r)
 
             s.meeting, s.credits = text_list
             rets.append(s)
