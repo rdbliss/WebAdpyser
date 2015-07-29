@@ -49,6 +49,15 @@ def parse_title_link(onclick):
     end = onclick.find("'", start)
     return onclick[start:end]
 
+def section_from_short_title(text):
+    """Create a Section instance from a class's short title string.
+    This is in the form of 'SUB-SEC-NUM (DIGITS) TITLE'."""
+    section_info = text[:text.find(" ")]
+    s = parse_section_string(section_info)
+    text = text[len(section_info):].strip()
+    s.title = text[text.find(" ")+1:]
+    return s
+
 class Section:
     def __init__(self, subject="", number="", section="", level="", faculty="",
                     title="", meeting="", capacity="", credits="", status=""):
@@ -170,16 +179,11 @@ class WebAdvisor:
         If `detailed` is true, grab the course descriptions as well."""
         rets = []
 
-        for zipper in grab_section_tags(r):
-            title_tag = zipper[0]
+        for tag_zip in grab_section_tags(r):
+            title_tag = tag_zip[0]
 
-            title = title_tag.text
-            section_info = title[:title.find(" ")]
-            s = parse_section_string(section_info)
-            title = title[len(section_info):].strip()
-            s.title = title[title.find(" ")+1:]
-
-            text_list = [t.text for t in list(zipper[1:])]
+            s = section_from_short_title(title_tag.text)
+            text_list = [t.text for t in list(tag_zip[1:])]
 
             if detailed:
                 query = parse_title_link(title_tag.attrs["onclick"])
