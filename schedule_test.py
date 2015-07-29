@@ -1,9 +1,10 @@
 #!/usr/bin/python3
 import wa
 from bs4 import BeautifulSoup
+from getpass import getpass
 
 user = input("user: ")
-password = input("password: ")
+password = getpass("pass: ")
 
 web = wa.WebAdvisor("https://oasis.oglethorpe.edu")
 
