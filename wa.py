@@ -115,6 +115,18 @@ def get_description_paragraph(r):
     soup = BeautifulSoup(r.content)
     return soup.find("p", id="VAR3").text
 
+def grab_schedule_tags(r):
+    soup = BeautifulSoup(r.content)
+    table = soup.find("table", {"summary": "Schedule"})
+    def contains(match):
+        return lambda s: s and match in s
+
+    titles = list(table.find_all("a", {"id": contains("LIST_VAR6")}))
+    meetingi = list(table.find_all("p", {"id": contains("LIST_VAR12")}))
+    crediti = list(table.find_all("p", {"id": contains("LIST_VAR8")}))
+
+    return zip(titles, meetingi, crediti)
+
 class WebAdvisor:
     def __init__(self, url, verify=True, timeout=6):
         self.session = requests.Session()
@@ -196,12 +208,41 @@ class WebAdvisor:
 
         return rets
 
+    def grab_schedule_rows(self, r, detailed=False):
+        """Grab the section information from the response of the schedule POST.
+        If `detailed` is true, grab the course descriptions as well."""
+        rets = []
+
+        for tag_zip in grab_schedule_tags(r):
+            title_tag = tag_zip[0]
+
+            s = section_from_short_title(title_tag.text)
+            text_list = [t.text for t in list(tag_zip[1:])]
+
+            if detailed:
+                query = parse_title_link(title_tag.attrs["onclick"])
+                url = r.url[:r.url.find("?")] + query
+                url = delete_url_query(url, "CLONE")
+                s.detail = get_description_paragraph(self.get(url))
+
+            s.meeting, s.credits = text_list
+            rets.append(s)
+
+        return rets
+
     def login(self, username, password):
         """POST a login request.
         Assumes self.last_request is on the login page."""
         data = { "USER.NAME": username
                , "CURR.PWD": password
                , "RETURN.URL": self.last_request.url}
+        return self.post(self.last_request.url, data=data)
+
+    def get_class_schedule(self, term="FA15R"):
+        """Grab the class schedule of an already-logged-in session.
+        Assumes self.last_request is on the term-selection page."""
+        data = { "RETURN.URL": self.last_request.url
+               , "VAR4": term}
         return self.post(self.last_request.url, data=data)
 
 # Validate options?
