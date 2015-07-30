@@ -112,6 +112,12 @@ def grab_section_tags(r):
 
     return zip(titles, stati, meetingi, faculti, capaciti, crediti)
 
+def link_from_short_title(title_tag, r):
+    query = parse_title_link(title_tag.attrs["onclick"])
+    url = r.url[:r.url.find("?")] + query
+    url = delete_url_query(url, "CLONE")
+    return url
+
 def get_description_paragraph(r):
     soup = BeautifulSoup(r.content)
     return soup.find("p", id="VAR3").text
@@ -164,9 +170,7 @@ class WebAdvisor:
     def detailed_from_short_title(self, title_tag, r):
         """Get a detailed paragraph from the short-title tag.
         Needs to GET a page, so in the WebAdvisor class."""
-        query = parse_title_link(title_tag.attrs["onclick"])
-        url = r.url[:r.url.find("?")] + query
-        url = delete_url_query(url, "CLONE")
+        url = link_from_short_title(title_tag, r)
         return get_description_paragraph(self.get(url))
 
     def section_request(self, term="FA15R", *sections):
