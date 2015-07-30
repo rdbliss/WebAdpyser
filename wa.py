@@ -129,8 +129,9 @@ def grab_schedule_tags(r):
     titles = list(table.find_all("a", {"id": contains("LIST_VAR6")}))
     meetingi = list(table.find_all("p", {"id": contains("LIST_VAR12")}))
     crediti = list(table.find_all("p", {"id": contains("LIST_VAR8")}))
+    start_dati = list(table.find_all("p", {"id": contains("DATE_LIST_VAR1")}))
 
-    return zip(titles, meetingi, crediti)
+    return zip(titles, meetingi, crediti, start_dati)
 
 class WebAdvisor:
     def __init__(self, url, verify=True, timeout=6):
@@ -227,10 +228,16 @@ class WebAdvisor:
             s = section_from_short_title(title_tag.text)
             text_list = [t.text for t in list(tag_zip[1:])]
 
-            if detailed:
-                s.detail = self.detailed_from_short_title(title_tag, r)
+            # The faculty isn't listed on the course schedule,
+            # so we have to go to the page to grab it.
+            class_link = link_from_short_title(title_tag, r)
+            soup = BeautifulSoup(self.get(class_link).content)
+            s.faculty = soup.find("p", {"id": contains("LIST_VAR7")}).text
 
-            s.meeting, s.credits = text_list
+            if detailed:
+                s.detail = soup.find("p", {"id": "VAR3"}).text
+
+            s.meeting, s.credits, s.start_date = text_list
             rets.append(s)
 
         return rets
