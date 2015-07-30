@@ -263,12 +263,7 @@ def parse_section_string(s):
     Does not currently (Mon Jul 20 2015) validate options."""
     return Section(*s.split("-"))
 
-def create_parser():
-    desc = "CLI-frontend for WebAdvisor, OU's student management server.\n"
-    epilog = ("WebAdvisor sucks, so hard it's difficult to describe. "
-              "If %s isn't working, try browsing oasis.oglethorpe.edu. "
-              "It's probably broken, too.") % sys.argv[0]
-    parser = argparse.ArgumentParser(description=desc, epilog=epilog)
+def add_filter_args(parser):
     group = parser.add_mutually_exclusive_group()
     group.add_argument("-g", "--greater", help="only report sections >= N", metavar="N", type=int, default=0)
     group.add_argument("-l", "--less", help="only report sections <= N", metavar="N", type=int, default=float("inf"))
@@ -318,7 +313,12 @@ def print_with_args(args, sections):
         print()
 
 if __name__ == "__main__":
-    parser = create_parser()
+    desc = "CLI-frontend for WebAdvisor, OU's student management server.\n"
+    epilog = ("WebAdvisor sucks, so hard it's difficult to describe. "
+              "If %s isn't working, try browsing oasis.oglethorpe.edu. "
+              "It's probably broken, too.") % sys.argv[0]
+    parser = argparse.ArgumentParser(description=desc, epilog=epilog)
+    add_filter_args(parser)
     parser.add_argument("sec", nargs="+", help="string in form of SUB-NUM-SEC, i.e. MAT-241-001")
     args = parser.parse_args()
 

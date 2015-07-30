@@ -2,12 +2,25 @@
 import wa
 from bs4 import BeautifulSoup
 from getpass import getpass
+import argparse
+import sys
 
-parser = wa.create_parser()
+desc = "Grab a course schedule from OASIS."
+epilog=("Grabbing schedules is a little slower than grabbing course listings "
+        "because to get all of the 'base' information, we have to GET the "
+        "whole class page, not just the table summarizing the info.")
+
+parser = argparse.ArgumentParser(description=desc, epilog=epilog)
+wa.add_filter_args(parser)
+parser.add_argument("user", nargs="?", help="username to use at OASIS")
 args = parser.parse_args()
 
-user = input("user: ")
-password = getpass("pass: ")
+if args.user:
+    user = args.user
+else:
+    print("user: ", file=sys.stderr, end="")
+    user = input()
+password = getpass("pass: ", stream=sys.stderr)
 
 web = wa.WebAdvisor("https://oasis.oglethorpe.edu")
 web.follow_link("Log In")
