@@ -263,17 +263,15 @@ def parse_section_string(s):
     Does not currently (Mon Jul 20 2015) validate options."""
     return Section(*s.split("-"))
 
-if __name__ == "__main__":
+def create_parser():
     desc = "CLI-frontend for WebAdvisor, OU's student management server.\n"
     epilog = ("WebAdvisor sucks, so hard it's difficult to describe. "
               "If %s isn't working, try browsing oasis.oglethorpe.edu. "
               "It's probably broken, too.") % sys.argv[0]
-
     parser = argparse.ArgumentParser(description=desc, epilog=epilog)
     group = parser.add_mutually_exclusive_group()
     group.add_argument("-g", "--greater", help="only report sections >= N", metavar="N", type=int, default=0)
     group.add_argument("-l", "--less", help="only report sections <= N", metavar="N", type=int, default=float("inf"))
-    parser.add_argument("sec", nargs="+", help="string in form of SUB-NUM-SEC, i.e. MAT-241-001")
     parser.add_argument("-f", "--faculty", help="get section faculty", action="store_true")
     parser.add_argument("-t", "--title", help="get section faculty", action="store_true")
     parser.add_argument("-m", "--meeting", help="get section meetings", action="store_true")
@@ -283,35 +281,10 @@ if __name__ == "__main__":
     parser.add_argument("-v", "--verbose", help="get detailed section info (takes considerably longer)", action="store_true")
     parser.add_argument("-r", "--term", help="change term viewed", default="FA15R")
     parser.add_argument("-u", "--url", metavar="url", help="web advisor url; check wa.ini for list", default="oasis.oglethorpe.edu")
-    args = parser.parse_args()
 
-    config = configparser.ConfigParser()
-    config.read("wa.ini")
+    return parser
 
-    if args.url in config:
-        section_path = ast.literal_eval(config[args.url]["to_section"])
-        url = config[args.url]["url"]
-        verify = config[args.url].getboolean("verify")
-    else:
-        # Section URL, not connection URL.
-        url = config["DEFAULT"]["url"]
-        section_path = ast.literal_eval(config[url]["to_section"])
-        url = config[url]["url"]
-        verify = config["DEFAULT"].getboolean("verify")
-
-    # Suppress SSL warnings.
-    if not verify:
-        exceptions = requests.packages.urllib3.exceptions.SecurityWarning
-        requests.packages.urllib3.disable_warnings(category=exceptions)
-
-    wa = WebAdvisor(url, verify)
-    for link in section_path:
-        wa.follow_link(link)
-
-    sections = [parse_section_string(s) for s in args.sec]
-    r = wa.section_request(args.term, *sections)
-    sections = wa.grab_section_rows(r, args.verbose)
-
+def print_with_args(args, sections):
     specific_print = False
     for section in sections:
         if ((args.greater and int(section.number) < args.greater) or
@@ -342,5 +315,37 @@ if __name__ == "__main__":
         if args.verbose:
             print()
             print(textwrap.fill(section.detail))
-
         print()
+
+if __name__ == "__main__":
+    parser = create_parser()
+    parser.add_argument("sec", nargs="+", help="string in form of SUB-NUM-SEC, i.e. MAT-241-001")
+    args = parser.parse_args()
+
+    config = configparser.ConfigParser()
+    config.read("wa.ini")
+
+    if args.url in config:
+        section_path = ast.literal_eval(config[args.url]["to_section"])
+        url = config[args.url]["url"]
+        verify = config[args.url].getboolean("verify")
+    else:
+        # Section URL, not connection URL.
+        url = config["DEFAULT"]["url"]
+        section_path = ast.literal_eval(config[url]["to_section"])
+        url = config[url]["url"]
+        verify = config["DEFAULT"].getboolean("verify")
+
+    # Suppress SSL warnings.
+    if not verify:
+        exceptions = requests.packages.urllib3.exceptions.SecurityWarning
+        requests.packages.urllib3.disable_warnings(category=exceptions)
+
+    wa = WebAdvisor(url, verify)
+    for link in section_path:
+        wa.follow_link(link)
+
+    sections = [parse_section_string(s) for s in args.sec]
+    r = wa.section_request(args.term, *sections)
+    sections = wa.grab_section_rows(r, args.verbose)
+    print_with_args(args, sections)
