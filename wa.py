@@ -97,10 +97,11 @@ class Section:
         self.section, self.title, self.faculty, self.meeting, self.credits,
         self.status, self.capacity)
 
+def contains(match):
+    return lambda s: s and match in s
+
 def grab_section_tags(r):
     soup = BeautifulSoup(r.content)
-    def contains(match):
-        return lambda s: s and match in s
 
     titles = [t for t in soup.find_all("a", {"id": contains("SEC_SHORT_TITLE")})]
     stati = [t for t in soup.find_all("p", {"id": contains("LIST_VAR1")})]
@@ -118,8 +119,6 @@ def get_description_paragraph(r):
 def grab_schedule_tags(r):
     soup = BeautifulSoup(r.content)
     table = soup.find("table", {"summary": "Schedule"})
-    def contains(match):
-        return lambda s: s and match in s
 
     titles = list(table.find_all("a", {"id": contains("LIST_VAR6")}))
     meetingi = list(table.find_all("p", {"id": contains("LIST_VAR12")}))
