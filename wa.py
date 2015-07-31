@@ -217,9 +217,9 @@ class WebAdvisor:
 
         return rets
 
-    def grab_schedule_rows(self, r, detailed=False):
+    def grab_schedule_rows(self, r, get_faculty=False):
         """Grab the section information from the response of the schedule POST.
-        If `detailed` is true, grab the course descriptions as well."""
+        If `get_faculty` is true, grab the course faculty and description."""
         rets = []
 
         for tag_zip in grab_schedule_tags(r):
@@ -228,13 +228,13 @@ class WebAdvisor:
             s = section_from_short_title(title_tag.text)
             text_list = [t.text for t in list(tag_zip[1:])]
 
-            # The faculty isn't listed on the course schedule,
-            # so we have to go to the page to grab it.
-            class_link = link_from_short_title(title_tag, r)
-            soup = BeautifulSoup(self.get(class_link).content)
-            s.faculty = soup.find("p", {"id": contains("LIST_VAR7")}).text
-
-            if detailed:
+            if get_faculty:
+                # The faculty isn't listed on the course schedule,
+                # so we have to go to the page to grab it.
+                class_link = link_from_short_title(title_tag, r)
+                soup = BeautifulSoup(self.get(class_link).content)
+                s.faculty = soup.find("p", {"id": contains("LIST_VAR7")}).text
+                # We're here, let's just get it.
                 s.detail = soup.find("p", {"id": "VAR3"}).text
 
             s.meeting, s.credits, s.start_date = text_list

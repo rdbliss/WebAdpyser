@@ -13,6 +13,8 @@ epilog=("Grabbing schedules is a little slower than grabbing course listings "
 parser = argparse.ArgumentParser(description=desc, epilog=epilog)
 wa.add_filter_args(parser)
 parser.add_argument("user", nargs="?", help="username to use at OASIS")
+parser.add_argument("-i", "--ignore_faculty", action="store_true",
+                    help="don't grab faculty information; speeds things up")
 args = parser.parse_args()
 
 if args.user:
@@ -28,4 +30,4 @@ web.login(user, password)
 web.follow_link("for Students")
 web.follow_link("My class")
 web.get_class_schedule(args.term)
-wa.print_with_args(args, web.grab_schedule_rows(web.last_request, args.verbose))
+wa.print_with_args(args, web.grab_schedule_rows(web.last_request, not args.ignore_faculty))
