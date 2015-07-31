@@ -50,6 +50,15 @@ def parse_title_link(onclick):
     end = onclick.find("'", start)
     return onclick[start:end]
 
+def section_from_short_title(text):
+    """Create a Section instance from a class's short title string.
+    This is in the form of 'SUB-SEC-NUM (DIGITS) TITLE'."""
+    section_info = text[:text.find(" ")]
+    s = parse_section_string(section_info)
+    text = text[len(section_info):].strip()
+    s.title = text[text.find(" ")+1:]
+    return s
+
 class Section:
     def __init__(self, subject="", number="", section="", level="", faculty="",
                     title="", meeting="", capacity="", credits="", status=""):
@@ -89,10 +98,11 @@ class Section:
         self.section, self.title, self.faculty, self.meeting, self.credits,
         self.status, self.capacity)
 
+def contains(match):
+    return lambda s: s and match in s
+
 def grab_section_tags(r):
     soup = BeautifulSoup(r.content)
-    def contains(match):
-        return lambda s: s and match in s
 
     titles = [t for t in soup.find_all("a", {"id": contains("SEC_SHORT_TITLE")})]
     stati = [t for t in soup.find_all("p", {"id": contains("LIST_VAR1")})]
@@ -103,9 +113,26 @@ def grab_section_tags(r):
 
     return zip(titles, stati, meetingi, faculti, capaciti, crediti)
 
+def link_from_short_title(title_tag, r):
+    query = parse_title_link(title_tag.attrs["onclick"])
+    url = r.url[:r.url.find("?")] + query
+    url = delete_url_query(url, "CLONE")
+    return url
+
 def get_description_paragraph(r):
     soup = BeautifulSoup(r.content)
     return soup.find("p", id="VAR3").text
+
+def grab_schedule_tags(r):
+    soup = BeautifulSoup(r.content)
+    table = soup.find("table", {"summary": "Schedule"})
+
+    titles = list(table.find_all("a", {"id": contains("LIST_VAR6")}))
+    meetingi = list(table.find_all("p", {"id": contains("LIST_VAR12")}))
+    crediti = list(table.find_all("p", {"id": contains("LIST_VAR8")}))
+    start_dati = list(table.find_all("p", {"id": contains("DATE_LIST_VAR1")}))
+
+    return zip(titles, meetingi, crediti, start_dati)
 
 class WebAdvisor:
     def __init__(self, url, verify=True, timeout=6):
@@ -142,6 +169,12 @@ class WebAdvisor:
         link = find_link(text, soup)
         return self.get(link)
 
+    def detailed_from_short_title(self, title_tag, r):
+        """Get a detailed paragraph from the short-title tag.
+        Needs to GET a page, so in the WebAdvisor class."""
+        url = link_from_short_title(title_tag, r)
+        return get_description_paragraph(self.get(url))
+
     def section_request(self, term="FA15R", *sections):
         """POST a section query. Assumes self.last_request is section page."""
         # TABLE.VARc_r, c column, r row.
@@ -171,24 +204,41 @@ class WebAdvisor:
         If `detailed` is true, grab the course descriptions as well."""
         rets = []
 
-        for zipper in grab_section_tags(r):
-            title_tag = zipper[0]
+        for tag_zip in grab_section_tags(r):
+            title_tag = tag_zip[0]
 
-            title = title_tag.text
-            section_info = title[:title.find(" ")]
-            s = parse_section_string(section_info)
-            title = title[len(section_info):].strip()
-            s.title = title[title.find(" ")+1:]
-
-            text_list = [t.text for t in list(zipper[1:])]
+            s = section_from_short_title(title_tag.text)
+            text_list = [t.text for t in list(tag_zip[1:])]
 
             if detailed:
-                query = parse_title_link(title_tag.attrs["onclick"])
-                url = r.url[:r.url.find("?")] + query
-                url = delete_url_query(url, "CLONE")
-                s.detail = get_description_paragraph(self.get(url))
+                s.detail = self.detailed_from_short_title(title_tag, r)
 
             s.status, s.meeting, s.faculty, s.capacity, s.credits = text_list
+            rets.append(s)
+
+        return rets
+
+    def grab_schedule_rows(self, r, get_faculty=False):
+        """Grab the section information from the response of the schedule POST.
+        If `get_faculty` is true, grab the course faculty and description."""
+        rets = []
+
+        for tag_zip in grab_schedule_tags(r):
+            title_tag = tag_zip[0]
+
+            s = section_from_short_title(title_tag.text)
+            text_list = [t.text for t in list(tag_zip[1:])]
+
+            if get_faculty:
+                # The faculty isn't listed on the course schedule,
+                # so we have to go to the page to grab it.
+                class_link = link_from_short_title(title_tag, r)
+                soup = BeautifulSoup(self.get(class_link).content)
+                s.faculty = soup.find("p", {"id": contains("LIST_VAR7")}).text
+                # We're here, let's just get it.
+                s.detail = soup.find("p", {"id": "VAR3"}).text
+
+            s.meeting, s.credits, s.start_date = text_list
             rets.append(s)
 
         return rets
@@ -201,23 +251,23 @@ class WebAdvisor:
                , "RETURN.URL": self.last_request.url}
         return self.post(self.last_request.url, data=data)
 
+    def get_class_schedule(self, term="FA15R"):
+        """Grab the class schedule of an already-logged-in session.
+        Assumes self.last_request is on the term-selection page."""
+        data = { "RETURN.URL": self.last_request.url
+               , "VAR4": term}
+        return self.post(self.last_request.url, data=data)
+
 # Validate options?
 def parse_section_string(s):
     """Split a string SUB-NUM-SEC into a base Section.
     Does not currently (Mon Jul 20 2015) validate options."""
     return Section(*s.split("-"))
 
-if __name__ == "__main__":
-    desc = "CLI-frontend for WebAdvisor, OU's student management server.\n"
-    epilog = ("WebAdvisor sucks, so hard it's difficult to describe. "
-              "If %s isn't working, try browsing oasis.oglethorpe.edu. "
-              "It's probably broken, too.") % sys.argv[0]
-
-    parser = argparse.ArgumentParser(description=desc, epilog=epilog)
+def add_filter_args(parser):
     group = parser.add_mutually_exclusive_group()
     group.add_argument("-g", "--greater", help="only report sections >= N", metavar="N", type=int, default=0)
     group.add_argument("-l", "--less", help="only report sections <= N", metavar="N", type=int, default=float("inf"))
-    parser.add_argument("sec", nargs="+", help="string in form of SUB-NUM-SEC, i.e. MAT-241-001")
     parser.add_argument("-f", "--faculty", help="get section faculty", action="store_true")
     parser.add_argument("-t", "--title", help="get section faculty", action="store_true")
     parser.add_argument("-m", "--meeting", help="get section meetings", action="store_true")
@@ -227,36 +277,10 @@ if __name__ == "__main__":
     parser.add_argument("-v", "--verbose", help="get detailed section info (takes considerably longer)", action="store_true")
     parser.add_argument("-r", "--term", help="change term viewed", default="FA15R")
     parser.add_argument("-u", "--url", metavar="url", help="web advisor url; check wa.ini for list", default="oasis.oglethorpe.edu")
-    args = parser.parse_args()
 
-    config = configparser.ConfigParser()
-    dir = os.path.dirname(os.path.realpath(sys.argv[0]))
-    config.read(os.path.join(dir, "wa.ini"))
+    return parser
 
-    if args.url in config:
-        section_path = ast.literal_eval(config[args.url]["to_section"])
-        url = config[args.url]["url"]
-        verify = config[args.url].getboolean("verify")
-    else:
-        # Section URL, not connection URL.
-        url = config["DEFAULT"]["url"]
-        section_path = ast.literal_eval(config[url]["to_section"])
-        url = config[url]["url"]
-        verify = config["DEFAULT"].getboolean("verify")
-
-    # Suppress SSL warnings.
-    if not verify:
-        exceptions = requests.packages.urllib3.exceptions.SecurityWarning
-        requests.packages.urllib3.disable_warnings(category=exceptions)
-
-    wa = WebAdvisor(url, verify)
-    for link in section_path:
-        wa.follow_link(link)
-
-    sections = [parse_section_string(s) for s in args.sec]
-    r = wa.section_request(args.term, *sections)
-    sections = wa.grab_section_rows(r, args.verbose)
-
+def print_with_args(args, sections):
     specific_print = False
     for section in sections:
         if ((args.greater and int(section.number) < args.greater) or
@@ -287,5 +311,42 @@ if __name__ == "__main__":
         if args.verbose:
             print()
             print(textwrap.fill(section.detail))
-
         print()
+
+if __name__ == "__main__":
+    desc = "CLI-frontend for WebAdvisor, OU's student management server.\n"
+    epilog = ("WebAdvisor sucks, so hard it's difficult to describe. "
+              "If %s isn't working, try browsing oasis.oglethorpe.edu. "
+              "It's probably broken, too.") % sys.argv[0]
+    parser = argparse.ArgumentParser(description=desc, epilog=epilog)
+    add_filter_args(parser)
+    parser.add_argument("sec", nargs="+", help="string in form of SUB-NUM-SEC, i.e. MAT-241-001")
+    args = parser.parse_args()
+
+    config = configparser.ConfigParser()
+    config.read("wa.ini")
+
+    if args.url in config:
+        section_path = ast.literal_eval(config[args.url]["to_section"])
+        url = config[args.url]["url"]
+        verify = config[args.url].getboolean("verify")
+    else:
+        # Section URL, not connection URL.
+        url = config["DEFAULT"]["url"]
+        section_path = ast.literal_eval(config[url]["to_section"])
+        url = config[url]["url"]
+        verify = config["DEFAULT"].getboolean("verify")
+
+    # Suppress SSL warnings.
+    if not verify:
+        exceptions = requests.packages.urllib3.exceptions.SecurityWarning
+        requests.packages.urllib3.disable_warnings(category=exceptions)
+
+    wa = WebAdvisor(url, verify)
+    for link in section_path:
+        wa.follow_link(link)
+
+    sections = [parse_section_string(s) for s in args.sec]
+    r = wa.section_request(args.term, *sections)
+    sections = wa.grab_section_rows(r, args.verbose)
+    print_with_args(args, sections)
