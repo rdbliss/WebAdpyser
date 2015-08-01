@@ -104,12 +104,12 @@ def contains(match):
 def grab_section_tags(r):
     soup = BeautifulSoup(r.content)
 
-    titles = [t for t in soup.find_all("a", {"id": contains("SEC_SHORT_TITLE")})]
-    stati = [t for t in soup.find_all("p", {"id": contains("LIST_VAR1")})]
-    meetingi = [t for t in soup.find_all("p", {"id": contains("SEC_MEETING_INFO")})]
-    faculti = [t for t in soup.find_all("p", {"id": contains("SEC_FACULTY_INFO")})]
-    capaciti = [t for t in soup.find_all("p", {"id": contains("LIST_VAR5")})]
-    crediti = [t for t in soup.find_all("p", {"id": contains("SEC_MIN_CRED")})]
+    titles = soup.find_all("a", {"id": contains("SEC_SHORT_TITLE")})
+    stati = soup.find_all("p", {"id": contains("LIST_VAR1")})
+    meetingi = soup.find_all("p", {"id": contains("SEC_MEETING_INFO")})
+    faculti = soup.find_all("p", {"id": contains("SEC_FACULTY_INFO")})
+    capaciti = soup.find_all("p", {"id": contains("LIST_VAR5")})
+    crediti = soup.find_all("p", {"id": contains("SEC_MIN_CRED")})
 
     return zip(titles, stati, meetingi, faculti, capaciti, crediti)
 
