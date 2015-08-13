@@ -280,6 +280,9 @@ def add_filter_args(parser):
 
     return parser
 
+def section_string(section):
+    return ("%s-%s-%s" % (section.subject, section.number, section.section))
+
 def print_with_args(args, sections):
     specific_print = False
     for section in sections:
@@ -289,8 +292,7 @@ def print_with_args(args, sections):
 
         if args.section:
             specific_print = True
-            print("%s-%s-%s" % (section.subject, section.number,
-                                section.section), end=" ")
+            print(section_string(section))
         if args.title:
             specific_print = True
             print(section.title, end=" ")
