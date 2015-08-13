@@ -292,7 +292,7 @@ def print_with_args(args, sections):
 
         if args.section:
             specific_print = True
-            print(section_string(section))
+            print(section_string(section), end=" ")
         if args.title:
             specific_print = True
             print(section.title, end=" ")
