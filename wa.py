@@ -308,8 +308,9 @@ def print_with_args(args, sections):
         if args.capacity:
             specific_print = True
             print(section.capacity, end=" ")
+
         if not specific_print:
-            print(section, end=" ")
+            print(section_string(section), section.title, section.faculty, end="")
         if args.verbose:
             print()
             print(textwrap.fill(section.detail))
