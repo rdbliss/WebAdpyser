@@ -313,6 +313,9 @@ def print_with_args(args, sections):
             print(textwrap.fill(section.detail))
         print()
 
+def get_script_dir():
+    return os.path.dirname(os.path.realpath(sys.argv[0]))
+
 if __name__ == "__main__":
     desc = "CLI-frontend for WebAdvisor, OU's student management server.\n"
     epilog = ("WebAdvisor sucks, so hard it's difficult to describe. "
@@ -324,7 +327,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     config = configparser.ConfigParser()
-    config.read("wa.ini")
+    config.read(os.path.join(get_script_dir(), "wa.ini"))
 
     if args.url in config:
         section_path = ast.literal_eval(config[args.url]["to_section"])
