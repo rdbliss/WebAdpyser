@@ -84,12 +84,17 @@ class Section:
 
     def __iter__(self):
         # Column-wise order of the table.
-        yield self.subject; yield self.level
-        yield self.number; yield self.section
+        yield self.subject
+        yield self.level
+        yield self.number
+        yield self.section
         # Now arbitrary.
-        yield self.title; yield self.faculty
-        yield self.meeting; yield self.credits
-        yield self.capacity; yield self.status
+        yield self.title
+        yield self.faculty
+        yield self.meeting
+        yield self.credits
+        yield self.capacity
+        yield self.status
 
     def __str__(self):
         return "%s-%s-%s %s %s %s %s %s %s" % (self.subject, self.number,
