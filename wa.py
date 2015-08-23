@@ -64,7 +64,7 @@ def section_from_short_title(text):
 
 class Section:
     def __init__(self, subject="", number="", section="", level="", faculty="",
-                    title="", meeting="", capacity="", credits="", status=""):
+                 title="", meeting="", capacity="", credits="", status=""):
         self.subject = subject
         self.level = level
         self.number = number
@@ -186,20 +186,20 @@ class WebAdvisor:
         """POST a section query. Assumes self.last_request is section page."""
         # TABLE.VARc_r, c column, r row.
         # Seems to break if only one section.
-        max = len(sections) if len(sections) > 1 else 2
+        max_rows = len(sections) if len(sections) > 1 else 2
 
-        smax = str(max)
-        data={ "VAR1": term
-             , "LIST.VAR1_MAX": smax
-             , "LIST.VAR2_MAX": smax
-             , "LIST.VAR3_MAX": smax
-             , "LIST.VAR4_MAX": smax
-             , "RETURN.URL": self.last_request.url
-             , "LIST.VAR1_CONTROLLER": "LIST.VAR1"
-             , "LIST.VAR1_MEMBERS": "LIST.VAR1*LIST.VAR2*LIST.VAR3*LIST.VAR4"}
+        smax = str(max_rows)
+        data = {"VAR1": term,
+                "LIST.VAR1_MAX": smax,
+                "LIST.VAR2_MAX": smax,
+                "LIST.VAR3_MAX": smax,
+                "LIST.VAR4_MAX": smax,
+                "RETURN.URL": self.last_request.url,
+                "LIST.VAR1_CONTROLLER": "LIST.VAR1",
+                "LIST.VAR1_MEMBERS": "LIST.VAR1*LIST.VAR2*LIST.VAR3*LIST.VAR4"}
 
-        for row,sec in zip(range(1,max+1), sections):
-            for col,item in zip(range(1,5), sec):
+        for row, sec in zip(range(1, max_rows+1), sections):
+            for col, item in zip(range(1, 5), sec):
                 data["LIST.VAR{0}_{1}".format(col, row)] = item
 
         # Sometimes this is already set, but make sure.
@@ -253,16 +253,15 @@ class WebAdvisor:
     def login(self, username, password):
         """POST a login request.
         Assumes self.last_request is on the login page."""
-        data = { "USER.NAME": username
-               , "CURR.PWD": password
-               , "RETURN.URL": self.last_request.url}
+        data = {"USER.NAME": username, "CURR.PWD": password,
+                "RETURN.URL": self.last_request.url}
         return self.post(self.last_request.url, data=data)
 
     def get_class_schedule(self, term="FA15R"):
         """Grab the class schedule of an already-logged-in session.
         Assumes self.last_request is on the term-selection page."""
-        data = { "RETURN.URL": self.last_request.url
-               , "VAR4": term}
+        data = {"RETURN.URL": self.last_request.url,
+                "VAR4": term}
         return self.post(self.last_request.url, data=data)
 
 # Validate options?
@@ -274,29 +273,33 @@ def parse_section_string(s):
 def add_filter_args(parser):
     """Add a series of 'standard' arguments to filter section results."""
     group = parser.add_mutually_exclusive_group()
-    group.add_argument("-g", "--greater", help="only report sections >= N", metavar="N", type=int, default=0)
-    group.add_argument("-l", "--less", help="only report sections <= N", metavar="N", type=int, default=float("inf"))
+    group.add_argument("-g", "--greater", help="only report sections >= N",
+                       metavar="N", type=int, default=0)
+    group.add_argument("-l", "--less", help="only report sections <= N",
+                       metavar="N", type=int, default=float("inf"))
     parser.add_argument("-f", "--faculty", help="get section faculty", action="store_true")
     parser.add_argument("-t", "--title", help="get section faculty", action="store_true")
     parser.add_argument("-m", "--meeting", help="get section meetings", action="store_true")
     parser.add_argument("-s", "--section", help="get section info", action="store_true")
     parser.add_argument("-c", "--capacity", help="get section capacity", action="store_true")
     parser.add_argument("-k", "--credits", help="get section credits", action="store_true")
-    parser.add_argument("-v", "--verbose", help="get detailed section info (takes considerably longer)", action="store_true")
+    parser.add_argument("-v", "--verbose", help="get detailed section info (takes longer)",
+                        action="store_true")
     parser.add_argument("-r", "--term", help="change term viewed", default="FA15R")
-    parser.add_argument("-u", "--url", metavar="url", help="web advisor url; check wa.ini for list", default="oasis.oglethorpe.edu")
+    parser.add_argument("-u", "--url", help="web advisor url; check wa.ini for list",
+                        metavar="url", default="oasis.oglethorpe.edu")
 
     return parser
 
 def section_string(section):
-    return ("%s-%s-%s" % (section.subject, section.number, section.section))
+    return "%s-%s-%s" % (section.subject, section.number, section.section)
 
 def print_with_args(args, sections):
     """Print a list of sections using the filters from add_filter_args()."""
     specific_print = False
     for section in sections:
-        if ((args.greater and int(section.number) < args.greater) or
-            (args.less    and int(section.number) > args.less)):
+        if (args.greater and int(section.number) < args.greater or
+                args.less and int(section.number) > args.less):
             continue
 
         if args.section:
