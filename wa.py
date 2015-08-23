@@ -24,6 +24,7 @@ import ast
 import os
 
 def replace_url_query(url, query, value):
+    """Replace/set the value of a given query in a url."""
     # urlparse returns a tuple that we can't modify.
     parse = list(uparse.urlparse(url))
     qdict = uparse.parse_qs(parse[4])
@@ -32,6 +33,7 @@ def replace_url_query(url, query, value):
     return uparse.urlunparse(parse)
 
 def delete_url_query(url, query):
+    """Delete a query from a given url. This is different from setting the value to ''."""
     parse = list(uparse.urlparse(url))
     qdict = uparse.parse_qs(parse[4])
     del qdict[query]
@@ -39,6 +41,7 @@ def delete_url_query(url, query):
     return uparse.urlunparse(parse)
 
 def find_link(search, soup):
+    """Find and return the first <a> tag's href element in `soup`."""
     link = soup.find("a", text=lambda t: search in t)
     return link.attrs["href"]
 
@@ -102,6 +105,7 @@ def contains(match):
     return lambda s: s and match in s
 
 def grab_section_tags(r):
+    """Grab section tags from the summary table."""
     soup = BeautifulSoup(r.content)
 
     titles = soup.find_all("a", {"id": contains("SEC_SHORT_TITLE")})
@@ -114,6 +118,7 @@ def grab_section_tags(r):
     return zip(titles, stati, meetingi, faculti, capaciti, crediti)
 
 def link_from_short_title(title_tag, r):
+    """Parse the short title tag's elements to find what it was redirecting to."""
     query = parse_title_link(title_tag.attrs["onclick"])
     url = r.url[:r.url.find("?")] + query
     url = delete_url_query(url, "CLONE")
@@ -124,6 +129,7 @@ def get_description_paragraph(r):
     return soup.find("p", id="VAR3").text
 
 def grab_schedule_tags(r):
+    """Grab tags from the class schedule table."""
     soup = BeautifulSoup(r.content)
     table = soup.find("table", {"summary": "Schedule"})
 
@@ -135,6 +141,7 @@ def grab_schedule_tags(r):
     return zip(titles, meetingi, crediti, start_dati)
 
 class WebAdvisor:
+    """A class that attempts to encapsulate everything you could ever want to do in WebAdvisor."""
     def __init__(self, url, verify=True, timeout=6):
         self.session = requests.Session()
         self.verify = verify
@@ -265,6 +272,7 @@ def parse_section_string(s):
     return Section(*s.split("-"))
 
 def add_filter_args(parser):
+    """Add a series of 'standard' arguments to filter section results."""
     group = parser.add_mutually_exclusive_group()
     group.add_argument("-g", "--greater", help="only report sections >= N", metavar="N", type=int, default=0)
     group.add_argument("-l", "--less", help="only report sections <= N", metavar="N", type=int, default=float("inf"))
@@ -284,6 +292,7 @@ def section_string(section):
     return ("%s-%s-%s" % (section.subject, section.number, section.section))
 
 def print_with_args(args, sections):
+    """Print a list of sections using the filters from add_filter_args()."""
     specific_print = False
     for section in sections:
         if ((args.greater and int(section.number) < args.greater) or
