@@ -118,7 +118,7 @@ def grab_section_tags(r):
     return zip(titles, stati, meetingi, faculti, capaciti, crediti)
 
 def link_from_short_title(title_tag, r):
-    """Parse the short title tag's elements to find what it was redirecting to."""
+    """Parse the short title tag's attributes to find what it was redirecting to."""
     query = parse_title_link(title_tag.attrs["onclick"])
     url = r.url[:r.url.find("?")] + query
     url = delete_url_query(url, "CLONE")
