@@ -97,9 +97,9 @@ class Section:
         yield self.status
 
     def __str__(self):
-        return "%s-%s-%s %s %s %s %s %s %s" % (self.subject, self.number,
-        self.section, self.title, self.faculty, self.meeting, self.credits,
-        self.status, self.capacity)
+        ident = "%s-%s-%s" % (self.subject, self.number, self.section)
+        return " ".join([ident, self.title, self.faculty, self.meeting,
+                         self.credits, self.status, self.capacity])
 
 def contains(match):
     return lambda s: s and match in s
