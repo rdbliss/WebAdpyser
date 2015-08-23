@@ -344,16 +344,10 @@ def main():
     config = configparser.ConfigParser()
     config.read(os.path.join(get_script_dir(), "wa.ini"))
 
-    if args.url in config:
-        section_path = ast.literal_eval(config[args.url]["to_section"])
-        url = config[args.url]["url"]
-        verify = config[args.url].getboolean("verify")
-    else:
-        # Section URL, not connection URL.
-        url = config["DEFAULT"]["url"]
-        section_path = ast.literal_eval(config[url]["to_section"])
-        url = config[url]["url"]
-        verify = config["DEFAULT"].getboolean("verify")
+    conf_dict = config[args.url] if args.url in config else config["DEFAULT"]
+    section_path = ast.literal_eval(conf_dict["to_section"])
+    url = conf_dict["url"]
+    verify = conf_dict.getboolean("verify")
 
     # Suppress SSL warnings.
     if not verify:
