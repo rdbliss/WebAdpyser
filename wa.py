@@ -331,7 +331,7 @@ def print_with_args(args, sections):
 def get_script_dir():
     return os.path.dirname(os.path.realpath(sys.argv[0]))
 
-if __name__ == "__main__":
+def main():
     desc = "CLI-frontend for WebAdvisor, OU's student management server.\n"
     epilog = ("WebAdvisor sucks, so hard it's difficult to describe. "
               "If %s isn't working, try browsing oasis.oglethorpe.edu. "
@@ -368,3 +368,6 @@ if __name__ == "__main__":
     r = wa.section_request(args.term, *sections)
     sections = wa.grab_section_rows(r, args.verbose)
     print_with_args(args, sections)
+
+if __name__ == "__main__":
+    main()
