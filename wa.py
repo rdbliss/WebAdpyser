@@ -5,12 +5,7 @@ webadvisor.coastal.edu, etc.), and the WebAdvisor class is, for the most
 part, compatible with all of them. Any specific sites will require code written
 for them (different links, HTML, section names, etc.).
 
-TODO: Test more sites, abstract if possible.
-      Grab list of section options from section page (VAR1).
-      Speed up; 2.8 seconds is a long time:
-        Most of it is SSL, but the rest is bs4.
-
-      See "wa.ini" for site-agnostics.
+See "wa.ini" for site-agnostics.
 """
 
 from urllib import parse as uparse
