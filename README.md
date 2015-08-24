@@ -10,14 +10,14 @@ It is terrible. The less anyone has to interact with it, the better. To that
 end, __WebAdpyser is a class/script that can currently scrape section
 information from WebAdvisor__ instances, and has a __unix-like interface__.
 
-By default, it uses [OASIS](https://oasis.oglethorpe.edu), but other sites that work can
-be added via [wa.ini](./wa.ini).
+By default, it uses [OASIS](https://oasis.oglethorpe.edu), but other sites that
+work might be added via [wa.ini](./wa.ini).
 
 A full listing of options can be found with the --help flag, but here are some
 (trimmed) examples:
 
 ````
-rwb@debian-p:~/python/WebAdpyser$ ./wa.py
+$ ./wa.py
 usage: wa.py [-h] [-g N] [-f] [-t] [-m] [-s] [-c] [-k] [-v] [-r TERM] [-u url]
              sec [sec ...]
 wa.py: error: the following arguments are required: sec
@@ -61,12 +61,10 @@ MAT-132-002 Calculus II
 MAT-132-001 Calculus II 
 MAT-130-003 Advanced Functions 
 MAT-130-002 Advanced Functions 
-MAT-130-001 Advanced Functions 
 MAT-121-002 Applied Calculus 
 MAT-121-001 Applied Calculus 
 MAT-120-002 Introduction to Functions 
 MAT-120-001 Introduction to Functions 
 MAT-111-101 Statistics 
 MAT-111-002 Statistics 
-MAT-111-001 Statistics 
 ````
