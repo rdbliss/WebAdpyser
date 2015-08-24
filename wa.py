@@ -255,7 +255,13 @@ class WebAdvisor:
         Assumes self.last_request is on the login page."""
         data = {"USER.NAME": username, "CURR.PWD": password,
                 "RETURN.URL": self.last_request.url}
-        return self.post(self.last_request.url, data=data)
+        r = self.post(self.last_request.url, data=data)
+        soup = BeautifulSoup(r.content)
+        if soup.find("div", {"class": "errorText"}):
+            # Login failed for some reason.
+            return None
+
+        return r
 
     def get_class_schedule(self, term="FA15R"):
         """Grab the class schedule of an already-logged-in session.

@@ -26,7 +26,9 @@ password = getpass("pass: ", stream=sys.stderr)
 
 web = wa.WebAdvisor("https://oasis.oglethorpe.edu")
 web.follow_link("Log In")
-web.login(user, password)
+if not web.login(user, password):
+    print("Login failed!")
+    exit(1)
 web.follow_link("for Students")
 web.follow_link("My class")
 web.get_class_schedule(args.term)
