@@ -82,6 +82,9 @@ class Section:
         except ValueError:
             self.number = ""
 
+    def section_string(self):
+        return "%s-%s-%s" % (self.subject, self.number, self.section)
+
     def __iter__(self):
         # Column-wise order of the table.
         yield self.subject
@@ -97,9 +100,8 @@ class Section:
         yield self.status
 
     def __str__(self):
-        ident = "%s-%s-%s" % (self.subject, self.number, self.section)
-        return " ".join([ident, self.title, self.faculty, self.meeting,
-                         self.credits, self.status, self.capacity])
+        return " ".join([self.section_string(), self.title, self.faculty,
+                         self.meeting, self.credits, self.status, self.capacity])
 
 def contains(match):
     return lambda s: s and match in s
@@ -302,9 +304,6 @@ def add_filter_args(parser):
 
     return parser
 
-def section_string(section):
-    return "%s-%s-%s" % (section.subject, section.number, section.section)
-
 def print_with_args(args, sections):
     """Print a list of sections using the filters from add_filter_args()."""
     specific_print = False
@@ -315,7 +314,7 @@ def print_with_args(args, sections):
 
         if args.section:
             specific_print = True
-            print(section_string(section), end=" ")
+            print(section.section_string(), end=" ")
         if args.title:
             specific_print = True
             print(section.title, end=" ")
@@ -333,7 +332,7 @@ def print_with_args(args, sections):
             print(section.capacity, end=" ")
 
         if not specific_print:
-            print(section_string(section), section.title, section.faculty, end="")
+            print(section.section_string(), section.title, section.faculty, end="")
         if args.verbose:
             print()
             print(textwrap.fill(section.detail))
