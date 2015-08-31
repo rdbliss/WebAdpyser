@@ -124,9 +124,13 @@ def link_from_short_title(title_tag, r):
     url = delete_url_query(url, "CLONE")
     return url
 
-def get_description_paragraph(r):
-    soup = BeautifulSoup(r.content)
+def get_description_paragraph(soup):
+    """Return the description paragraph from a class soup."""
     return soup.find("p", id="VAR3").text
+
+def get_faculty_class_page(soup):
+    """Return the faculty name(s) from a class page."""
+    return soup.find("p", {"id": contains("LIST_VAR7")}).text
 
 def grab_schedule_tags(r):
     """Grab tags from the class schedule table."""
@@ -180,7 +184,8 @@ class WebAdvisor:
         """Get a detailed paragraph from the short-title tag.
         Needs to GET a page, so in the WebAdvisor class."""
         url = link_from_short_title(title_tag, r)
-        return get_description_paragraph(self.get(url))
+        r = self.get(url)
+        return get_description_paragraph(BeautifulSoup(r.content))
 
     def section_request(self, term="FA15R", *sections):
         """POST a section query. Assumes self.last_request is section page."""
@@ -241,9 +246,9 @@ class WebAdvisor:
                 # so we have to go to the page to grab it.
                 class_link = link_from_short_title(title_tag, r)
                 soup = BeautifulSoup(self.get(class_link).content)
-                s.faculty = soup.find("p", {"id": contains("LIST_VAR7")}).text
+                s.faculty = get_faculty_class_page(soup)
                 # We're here, let's just get it.
-                s.detail = soup.find("p", {"id": "VAR3"}).text
+                s.detail = get_description_paragraph(soup)
 
             s.meeting, s.credits, s.start_date = text_list
             rets.append(s)
