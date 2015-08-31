@@ -162,7 +162,7 @@ class WebAdvisor:
         url = replace_url_query(r.url, "TOKENIDX", self.token)
 
         # Send token cookie/parameter; now at main page with proper links.
-        r = self.get(url)
+        self.last_request = self.get(url)
 
     def get(self, *args, **params):
         params["timeout"] = self.timeout
