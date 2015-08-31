@@ -165,6 +165,11 @@ class WebAdvisor:
         self.last_request = self.get(url)
 
     def get(self, *args, **params):
+        """Perform a GET request, using instance specific options.
+        The `timeout` and `verify` kwargs will be ignored, but besides
+        them, all arguments are passed DIRECTLY to self.session.get().
+        """
+
         params["timeout"] = self.timeout
         params["verify"] = self.verify
 
