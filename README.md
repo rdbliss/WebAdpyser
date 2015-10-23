@@ -17,11 +17,6 @@ A full listing of options can be found with the --help flag, but here are some
 (trimmed) examples:
 
 ````
-$ ./wa.py
-usage: wa.py [-h] [-g N] [-f] [-t] [-m] [-s] [-c] [-k] [-v] [-r TERM] [-u url]
-             sec [sec ...]
-wa.py: error: the following arguments are required: sec
-
 $ ./wa.py MAT -st # Section info and title of all upcoming math classes.
 MAT-111-001 Statistics 
 MAT-111-002 Statistics 
@@ -57,14 +52,8 @@ MAT-496-001 Senior Seminar in Math
 MAT-490-001 AST: Mathematical Biology 
 MAT-236-001 Differential Equations 
 MAT-234-001 Calculus IV 
-MAT-132-002 Calculus II 
 MAT-132-001 Calculus II 
-MAT-130-003 Advanced Functions 
-MAT-130-002 Advanced Functions 
-MAT-121-002 Applied Calculus 
 MAT-121-001 Applied Calculus 
-MAT-120-002 Introduction to Functions 
 MAT-120-001 Introduction to Functions 
 MAT-111-101 Statistics 
-MAT-111-002 Statistics 
 ````
