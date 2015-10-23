@@ -108,7 +108,7 @@ def contains(match):
 
 def grab_section_tags(r):
     """Grab section tags from the summary table."""
-    soup = BeautifulSoup(r.content)
+    soup = BeautifulSoup(r.content, "lxml")
 
     titles = soup.find_all("a", {"id": contains("SEC_SHORT_TITLE")})
     stati = soup.find_all("p", {"id": contains("LIST_VAR1")})
@@ -136,7 +136,7 @@ def get_faculty_class_page(soup):
 
 def grab_schedule_tags(r):
     """Grab tags from the class schedule table."""
-    soup = BeautifulSoup(r.content)
+    soup = BeautifulSoup(r.content, "lxml")
     table = soup.find("table", {"summary": "Schedule"})
 
     titles = list(table.find_all("a", {"id": contains("LIST_VAR6")}))
@@ -183,7 +183,7 @@ class WebAdvisor:
     def follow_link(self, text):
         """Search for and attempt to follow the first
             link in the last response."""
-        soup = BeautifulSoup(self.last_request.content)
+        soup = BeautifulSoup(self.last_request.content, "lxml")
         link = find_link(text, soup)
         return self.get(link)
 
@@ -192,7 +192,7 @@ class WebAdvisor:
         Needs to GET a page, so in the WebAdvisor class."""
         url = link_from_short_title(title_tag, r)
         r = self.get(url)
-        return get_description_paragraph(BeautifulSoup(r.content))
+        return get_description_paragraph(BeautifulSoup(r.content, "lxml"))
 
     def section_request(self, term="FA15R", *sections):
         """POST a section query. Assumes self.last_request is section page."""
@@ -252,7 +252,7 @@ class WebAdvisor:
                 # The faculty isn't listed on the course schedule,
                 # so we have to go to the page to grab it.
                 class_link = link_from_short_title(title_tag, r)
-                soup = BeautifulSoup(self.get(class_link).content)
+                soup = BeautifulSoup(self.get(class_link).content, "lxml")
                 s.faculty = get_faculty_class_page(soup)
                 # We're here, let's just get it.
                 s.detail = get_description_paragraph(soup)
@@ -268,7 +268,7 @@ class WebAdvisor:
         data = {"USER.NAME": username, "CURR.PWD": password,
                 "RETURN.URL": self.last_request.url}
         r = self.post(self.last_request.url, data=data)
-        soup = BeautifulSoup(r.content)
+        soup = BeautifulSoup(r.content, "lxml")
         if soup.find("div", {"class": "errorText"}):
             # Login failed for some reason.
             return None

@@ -57,3 +57,11 @@ MAT-121-001 Applied Calculus
 MAT-120-001 Introduction to Functions 
 MAT-111-101 Statistics 
 ````
+
+## Requirements
+
+Requirements are followed by their current (2015-10-22) debian package name.
+
+- Python 3 (python3)
+- Beautiful Soup (python3-bs4)
+- lxml (python3-lxml)
