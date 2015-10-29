@@ -1,3 +1,11 @@
+## Requirements
+
+Requirements are followed by their current (2015-10-22) debian package name.
+
+- Python 3 (python3)
+- Beautiful Soup (python3-bs4)
+- lxml (python3-lxml)
+
 # WebAdpyser
 
 __WebAdvisor__, [according to Ellucian](http://www.ellucian.com/Software/Colleague-WebAdvisor/),
@@ -35,7 +43,7 @@ MAT-233-001 Calculus III
 MAT-241-001 Proof and Logic 
 MAT-471-001 Abstract Algebra 
 
-$ ./wa.py MAT-241 -sftv # Tell me more about MAT-241.
+$ ./wa.py MAT-241 -v # Tell me more about MAT-241.
 MAT-241-001 Proof and Logic P. Tiu 
 This course serves as a general introduction to advanced mathematics.
 As such, it will consider various methods of proof communicated
@@ -57,11 +65,3 @@ MAT-121-001 Applied Calculus
 MAT-120-001 Introduction to Functions 
 MAT-111-101 Statistics 
 ````
-
-## Requirements
-
-Requirements are followed by their current (2015-10-22) debian package name.
-
-- Python 3 (python3)
-- Beautiful Soup (python3-bs4)
-- lxml (python3-lxml)
