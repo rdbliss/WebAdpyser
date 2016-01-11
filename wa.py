@@ -303,7 +303,7 @@ def add_filter_args(parser):
     parser.add_argument("-k", "--credits", help="get section credits", action="store_true")
     parser.add_argument("-v", "--verbose", help="get detailed section info (takes longer)",
                         action="store_true")
-    parser.add_argument("-r", "--term", help="change term viewed", default="FA15R")
+    parser.add_argument("-r", "--term", help="change term viewed", default="SP16R")
     parser.add_argument("-u", "--url", help="web advisor url; check wa.ini for list",
                         metavar="url", default="oasis.oglethorpe.edu")
 
